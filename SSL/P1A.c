@@ -20,6 +20,7 @@ struct bst{
 
 void create_List(char[]);
 void insert(char std_name[], int n, struct course *arr[], char course_name);
+void delete(char std_name[], int n, struct course *arr[], char course_name);
 FILE *c_ptr;
 struct course *arr[10];
 int n=0;
@@ -115,6 +116,7 @@ void insert(char std_name[], int n, struct course *arr[], char course_name){
 
 }
 
+
 void delete(char std_name[], int n, struct course *arr[], char course_name){
     int i=0;
     for(i=0 ; i<n ; i++){
@@ -137,6 +139,7 @@ void delete(char std_name[], int n, struct course *arr[], char course_name){
     }
 
     struct bst *cur = arr[i]->regList;
+
     if(!cur->left && !cur->right && !cur->parent){
         
         if(!strcmp(cur->std_name,std_name)){
@@ -155,7 +158,47 @@ void delete(char std_name[], int n, struct course *arr[], char course_name){
 
             cur = cur->left;
             if(!strcmp(cur->std_name,std_name)){
-                
+
+                if(!cur->left && !cur->right){
+                    free(cur);
+                    printf("\nStudent %s deleted from the course %s", std_name, course_name);
+                    return;
+                }
+                else if(!cur->right && cur->left){
+                    cur->parent->left = cur->left;
+                    cur->left->parent = cur->parent;
+                    free(cur);
+                    printf("\nStudent %s deleted from the course %s", std_name, course_name);
+                    return;
+                }
+                else if(cur->right && !cur->left){
+                    cur->parent->left = cur->right;
+                    cur->right->parent = cur->parent;
+                    free(cur);
+                    printf("\nStudent %s deleted from the course %s", std_name, course_name);
+                    return;
+                }
+                else if(cur->right && cur->left){
+                    struct bst *temp, *temp1;
+                    temp = temp1 = cur;
+                    while(temp->right){
+                        temp = temp->right;
+                        if(!temp->right && temp->left){
+                            temp->parent->right = temp->left;
+                            temp->left->parent = temp->parent;
+                            temp1->std_name = temp->std_name;
+                            free(temp);
+                            printf("\nStudent %s deleted from the course %s", std_name, course_name);
+                            return;
+                        }
+                        else if(!temp->right && !temp->left){
+                            temp1->std_name = temp->std_name;
+                            free(temp);
+                            printf("\nStudent %s deleted from the course %s", std_name, course_name);
+                            return;
+                        }
+                    }
+                }
                 
             }
 
