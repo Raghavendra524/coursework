@@ -1,58 +1,165 @@
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 struct course
 {
-char code[10];
-char name[5];
-int credits;
+    char code[10];
+    char name[10];
+    int credit;
+    int maxLimit;
+    struct bst *regList;
 };
-int getcredits(struct course *arr[],char code[],int n);
-int main(int argc, char *argv[])
+
+struct bst{
+    struct bst *parent;
+    struct bst *left;
+    char *std_name;
+    struct bst *right;
+};
+
+void create_List(char[]);
+void insert(char std_name[], int n, struct course *arr[], char course_name);
+FILE *c_ptr;
+struct course *arr[10];
+int n=0;
+
+int main(int argc, char **args){
+    
+    char name[10];
+    create_List(args[1]);
+
+
+
+}
+
+void create_List(char file[])
 {
-int n;
-FILE *c_file;
-c_file = fopen (argv[1], "r");
-char c = getc(c_file);
-while(c != EOF){
-if (c == '\n')    
-n+=1;
-c = getc(c_file);
+    int i = 0;
+    c_ptr = fopen(file, "r");
+    if (!c_ptr)
+    {
+        printf("Error!!, No file Found");
+        exit(1);
+    }
+
+    arr[i] = (struct course *)malloc(sizeof(struct course));
+    arr[i]->regList = NULL;
+    while (fscanf(c_ptr, "%s %s %d %d",
+                  arr[i]->code,
+                  arr[i]->name,
+                  &arr[i]->credit,
+                  &arr[i]->maxLimit) != EOF)
+    {
+        arr[++i] = (struct course *)malloc(sizeof(struct course));
+        arr[i]->regList = NULL;
+    }
+    n = i;
+    free(arr[i]);
+    fclose(c_ptr);
+    return;
 }
-fclose(c_file);
-struct course *arr[n];
-for(int i=0;i<n;i++){
-arr[i]= (struct course*)malloc(sizeof(struct course));
+
+
+
+void insert(char std_name[], int n, struct course *arr[], char course_name){
+
+    int i=0;
+    for(i=0 ; i<n ; i++){
+         if (!strcmp(arr[i]->name, course_name))
+        {
+            break;
+        }
+
+    }
+
+    if(i==n){
+        printf("\n No course found!!");
+        return;
+    }
+
+    struct bst *head=(struct bst*)malloc(sizeof(struct bst));
+    strcpy(head->std_name,std_name);
+    head->left = head->right = head->parent = NULL;
+    struct bst *cur = arr[i]->regList;
+
+    if(!cur){
+        arr[i]->regList = head;
+        cur = arr[i]->regList;
+    }
+     
+    while(cur){
+
+        while(!strcmp(cur->std_name,std_name)||(!strcmp(cur->std_name,std_name)>0)){
+            if(cur->left==NULL){
+                head->parent = cur;
+                cur->left = head;
+                break;
+            }
+            cur = cur->left;
+
+        }
+        while(!(strcmp(cur->std_name,std_name)<0)){
+            if(cur->right==NULL){
+                head->parent = cur;
+                cur->right = head;
+                break;
+            }
+            cur = cur->right;
+
+        }
+    
+    }
+    printf("\nStudent %s registered for the course %s successfully.", std_name, course_name);
+    return;
+
 }
-c_file = fopen (argv[1], "r");
-if(c_file==NULL){
-printf("file not found\n");
-exit(1);
-}
-for(int i=0;i<n;i++)
-{
-fscanf(c_file, "%s", arr[i]->code);
-fscanf(c_file, "%s", arr[i]->name);
-fscanf(c_file, "%d", &arr[i]->credits);
-}
-fclose(c_file);
-char s[10];
-printf("enter the code to get credits\n");
-scanf("%s",s);
-int r=getcredits(arr,s,n);
-if(r==0){
-printf("course enrollmentid not matched\n");
-}
-else
-printf("no of credits for course: %d", r);
-return 0;
-}
-int getcredits(struct course *arr[],char code[],int n)
-{
-for(int i=0;i<n;i++){
-int val= strcmp(arr[i]->code, code);
-if(val==0)
-return arr[i]->credits;
-}
-return 0;
+
+void delete(char std_name[], int n, struct course *arr[], char course_name){
+    int i=0;
+    for(i=0 ; i<n ; i++){
+         if (!strcmp(arr[i]->name, course_name))
+        {
+            break;
+        }
+
+    }
+
+    if(i==n){
+        printf("\n No course found!!");
+        return;
+    }
+
+    if (!arr[i]->regList)
+    {
+        printf("\nNo students listed for the course %s", course_name);
+        return;
+    }
+
+    struct bst *cur = arr[i]->regList;
+    if(!cur->left && !cur->right && !cur->parent){
+        
+        if(!strcmp(cur->std_name,std_name)){
+           
+            arr[i]->regList = NULL;
+            free(cur);
+            printf("\nStudent %s deleted from the course %s", std_name, course_name);
+            return;
+        }
+
+    }
+
+    while(cur){
+
+        while(!strcmp(cur->std_name,std_name)>0){
+
+            cur = cur->left;
+            if(!strcmp(cur->std_name,std_name)){
+                
+                
+            }
+
+        }
+
+    }
 }
